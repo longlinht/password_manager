@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.longlinht.password_manager">
+
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+
    <application
         android:label="password_manager"
         android:icon="@mipmap/ic_launcher">

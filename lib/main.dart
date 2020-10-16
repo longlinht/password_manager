@@ -1,95 +1,88 @@
+import 'package:password_manager/ui/GreetingsPage.dart';
+import 'package:password_manager/ui/PasswordHomepage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
 
 void main() {
-  runApp(PasswordManagerApp());
+  runApp(MyApp());
 }
 
-class PasswordManagerApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: HomePage(title: 'Flutter Demo Home Page'),
-    );
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  int launch = 0;
+  bool loading = true;
+  int primarycolorCode;
+  Color primaryColor = Color(0xff161616);
+
+  checkPrimaryColr() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    primarycolorCode = prefs.getInt('primaryColor') ?? 0;
+
+    if (primarycolorCode != 0) {
+      setState(() {
+        primaryColor = Color(primarycolorCode);
+      });
+    }
   }
-}
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+  Future checkFirstSeen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    launch = prefs.getInt("launch") ?? 0;
 
-  final String title;
+    final storage = new FlutterSecureStorage();
+    String masterPass = await storage.read(key: 'master') ?? '';
 
-  @override
-  HomePageState createState() => HomePageState();
-}
+    if (prefs.getInt('primaryColor') == null) {
+      await prefs.setInt('primaryColor', 0);
+    }
 
-class HomePageState extends State<HomePage> {
-  int _counter = 0;
+    if (launch == 0 && masterPass == '') {
+      await prefs.setInt('launch', launch + 1);
+      await prefs.setInt('primaryColor', 0);
+      // await prefs.setBool('enableDarkTheme', false);
+    }
 
-  void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      loading = false;
     });
   }
 
   @override
+  void initState() {
+    checkPrimaryColr();
+    checkFirstSeen();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    checkPrimaryColr();
+    return DynamicTheme(
+      defaultBrightness: Brightness.light,
+      data: (brightness) => new ThemeData(
+        fontFamily: "Title",
+        primaryColor: primaryColor,
+        accentColor: Color(0xff161616),
+        // primaryColor: Color(0xff5153FF),
+        // primaryColorDark: Color(0xff0029cb),
+        brightness: brightness,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      themedWidgetBuilder: (context, theme) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: '密码',
+        theme: theme,
+        home: loading
+            ? Center(
+          child: CircularProgressIndicator(),
+        )
+            : launch == 0 ? GreetingPage() : PasswordHomepage(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
