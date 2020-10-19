@@ -63,7 +63,7 @@ class SetMasterPasswordState extends State<SetMasterPassword> {
                 child: Text("主密码",
                     style: TextStyle(
                       fontFamily: "Title",
-                      fontSize: 32,
+                      fontSize: 28,
                       color: primaryColor
                     ))),
           ),

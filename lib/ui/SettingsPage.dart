@@ -51,7 +51,7 @@ class SettingsPageState extends State<SettingsPage> {
                 child: Text("设置",
                     style: TextStyle(
                         fontFamily: "Title",
-                        fontSize: 32,
+                        fontSize: 28,
                         color: primaryColor))),
           ),
           InkWell(

@@ -36,14 +36,14 @@ class AddPasswordState extends State<AddPassword> {
 
   List<Icon> icons = [
     Icon(Icons.account_circle, size: 28, color: Colors.white),
-    Icon(Icons.add, size: 28, color: Colors.white),
+    Icon(Icons.account_balance, size: 28, color: Colors.white),
+    Icon(Icons.card_membership_rounded, size: 28, color: Colors.white),
+    Icon(Icons.work_rounded, size: 28, color: Colors.white),
     Icon(Icons.access_alarms, size: 28, color: Colors.white),
     Icon(Icons.ac_unit, size: 28, color: Colors.white),
     Icon(Icons.accessible, size: 28, color: Colors.white),
-    Icon(Icons.account_balance, size: 28, color: Colors.white),
     Icon(Icons.add_circle_outline, size: 28, color: Colors.white),
     Icon(Icons.airline_seat_individual_suite, size: 28, color: Colors.white),
-    Icon(Icons.arrow_drop_down_circle, size: 28, color: Colors.white),
     Icon(Icons.assessment, size: 28, color: Colors.white),
   ];
 
@@ -168,7 +168,6 @@ class AddPasswordState extends State<AddPassword> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     Color primaryColor = Theme.of(context).primaryColor;
-
     return Scaffold(
       key: scaffoldKey,
       body: SingleChildScrollView(
@@ -183,7 +182,7 @@ class AddPasswordState extends State<AddPassword> {
                 child: Text(
                   "新密码",
                   style: TextStyle(
-                      fontFamily: "Title", fontSize: 32, color: primaryColor),
+                      fontFamily: "Title", fontSize: 28, color: primaryColor),
                 ),
               ),
             ),
@@ -194,16 +193,10 @@ class AddPasswordState extends State<AddPassword> {
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: TextFormField(
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return '请输入正确的标题';
-                        }
-                      },
                       decoration: InputDecoration(
                           labelText: "标题",
                           labelStyle: TextStyle(fontFamily: "Subtitle"),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                          errorStyle: TextStyle(fontFamily: "Subtitle", color: Colors.black87)
                       ),
                       controller: appNameController,
                     ),
@@ -211,11 +204,6 @@ class AddPasswordState extends State<AddPassword> {
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: TextFormField(
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return '请输入正确的用户名';
-                        }
-                      },
                       decoration: InputDecoration(
                           labelText: "用户名/电子邮件",
                           labelStyle: TextStyle(fontFamily: "Subtitle"),
@@ -358,47 +346,12 @@ class AddPasswordState extends State<AddPassword> {
                               });
                             },
                             child: Material(
-                                elevation: 4.0,
                                 color: pickedColor,
                                 shape: CircleBorder(),
                                 child: icons[index]),
                           );
-                        })),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "选择一种颜色",
-                            style: TextStyle(
-                                fontFamily: 'Title',
-                                fontSize: 20,
-                                color: primaryColor),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            _openColorPicker();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 8.0, right: 8.0, top: 8.0),
-                            child: Material(
-                                shape: CircleBorder(),
-                                elevation: 4.0,
-                                child: CircleAvatar(
-                                  backgroundColor: pickedColor,
-                                  radius: 25,
-                                )),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
+                        }))
+                  )
                 ],
               ),
             ),
@@ -407,25 +360,41 @@ class AddPasswordState extends State<AddPassword> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: primaryColor,
-        child: Icon(Icons.add),
+        child: Icon(Icons.create),
         onPressed: () {
-          if (_formKey.currentState.validate()) {
-            encryptPass(passwordController.text);
-            Password password = new Password(
-                appName: appNameController.text,
-                password: encryptedString,
-                color: "#" + pickedColor.value.toRadixString(16),
-                icon: iconNames[pickedIcon],
-                userName: userNameController.text);
-            DBProvider.db.newPassword(password);
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => PasswordHomepage()),
-                (Route<dynamic> route) => false);
-          } else {
-            // print(Theme.of(context).accentColor);
+          if(appNameController.text.isEmpty) {
+            scaffoldKey.currentState.showSnackBar(
+              SnackBar(
+                content: Text("请输入正确的标题"),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
           }
+
+          if(passwordController.text.isEmpty) {
+            scaffoldKey.currentState.showSnackBar(
+              SnackBar(
+                content: Text("请输入正确用户名"),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
+          }
+
+          encryptPass(passwordController.text);
+          Password password = new Password(
+              appName: appNameController.text,
+              password: encryptedString,
+              color: "#" + pickedColor.value.toRadixString(16),
+              icon: iconNames[pickedIcon],
+              userName: userNameController.text);
+          DBProvider.db.newPassword(password);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => PasswordHomepage()),
+                  (Route<dynamic> route) => false);
         },
       ),
     );

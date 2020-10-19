@@ -83,7 +83,7 @@ class _PasswordHomepageState extends State<PasswordHomepage> {
                       "凯撒盒子",
                       style: TextStyle(
                           fontFamily: "Title",
-                          fontSize: 32,
+                          fontSize: 28,
                           color: primaryColor),
                     ),
                     Row(
