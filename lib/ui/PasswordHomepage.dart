@@ -90,15 +90,6 @@ class _PasswordHomepageState extends State<PasswordHomepage> {
                       children: <Widget>[
                         IconButton(
                           icon: Icon(
-                            Icons.wb_sunny,
-                            color: primaryColor,
-                          ),
-                          onPressed: () {
-                            changeBrightness();
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
                             Icons.settings,
                             color: primaryColor,
                           ),
