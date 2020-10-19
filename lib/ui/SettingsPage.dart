@@ -54,6 +54,15 @@ class SettingsPageState extends State<SettingsPage> {
                         fontSize: 28,
                         color: primaryColor))),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0, bottom: 0.0),
+            child: Container(
+                child: Text("主密码",
+                    style: TextStyle(
+                        fontFamily: "Title",
+                        fontSize: 24,
+                        color: primaryColor))),
+          ),
           InkWell(
             onTap: () {
               Navigator.push(
@@ -63,49 +72,22 @@ class SettingsPageState extends State<SettingsPage> {
             },
             child: ListTile(
               title: Text(
-                "主密码",
-                style: TextStyle(
-                  fontFamily: 'Title',
-                ),
-              ),
-              subtitle: Text(
                 "修改主密码",
                 style: TextStyle(
-                  fontFamily: 'Subtitle',
+                  fontFamily: 'Title',
+                  fontSize: 18
+                ),
+              ),
+              trailing: Container(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.navigate_next,
+                    color: primaryColor,
+                  )
                 ),
               ),
             ),
           ),
-          Column(
-            children: <Widget>[
-              ListTile(
-                title: Text(
-                  "主题色",
-                  style: TextStyle(
-                    fontFamily: 'Title',
-                  ),
-                ),
-                subtitle: Text(
-                  "修改主题色",
-                  style: TextStyle(
-                    fontFamily: 'Subtitle',
-                  ),
-                ),
-              ),
-              MaterialColorPicker(
-                onColorChange: (Color color) {
-                  pickedColor = color;
-                  changeColor(color);
-                  setState(() {
-                    selectedColor = color;
-                  });
-                },
-                circleSize: 60,
-                selectedColor: selectedColor,
-                shrinkWrap: true,
-              ),
-            ],
-          )
         ],
       ),
     );
