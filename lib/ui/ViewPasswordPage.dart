@@ -4,6 +4,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:sqflite/utils/utils.dart';
+import 'package:flutter/services.dart';
 
 import 'PasswordHomepage.dart';
 
@@ -114,84 +115,119 @@ class ViewPasswordState extends State<ViewPassword> {
                     Text(password.appName,
                         style: TextStyle(
                             fontFamily: "Title",
-                            fontSize: 32,
+                            fontSize: 28,
                             color: Colors.white)),
                   ],
                 ),
               )),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Username",
-                    style: TextStyle(fontFamily: 'Title', fontSize: 20),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 8),
-                  child: Text(
-                    password.userName,
-                    style: TextStyle(
-                      fontFamily: 'Subtitle',
-                      fontSize: 20,
-                      // color: Colors.black54
+
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "用户名",
+                      style: TextStyle(fontFamily: 'Title',
+                          fontSize: 28),
                     ),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "密码",
-                            style: TextStyle(fontFamily: 'Title', fontSize: 20),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 8),
-                          child: Text(
-                            decrypt ? decrypted : password.password,
-                            style: TextStyle(
-                              fontFamily: 'Subtitle',
-                              fontSize: 20,
-                              // color: Colors.black54
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 8),
+                    child: Text(
+                      password.userName,
+                      style: TextStyle(
+                        fontFamily: 'Subtitle',
+                        fontSize: 18,
+                        // color: Colors.black54
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "密码",
+                              style: TextStyle(fontFamily: 'Title', fontSize: 28),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        if (!decrypt && !didAuthenticate) {
-                          buildShowDialogBox(context);
-                        } else if (!decrypt && didAuthenticate) {
-                          String masterPass = await getMasterPass();
-                          decryptPass(password.password, masterPass);
-                        } else if (decrypt) {
-                          setState(() {
-                            decrypt = !decrypt;
-                          });
-                        }
-                      },
-                      icon: decrypt ? Icon(Icons.lock_open) : Icon(Icons.lock),
-                    )
-                  ],
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 8),
+                            child: Text(
+                              decrypt ? decrypted : "************",
+                              style: TextStyle(
+                                fontFamily: 'Subtitle',
+                                fontSize: 18,
+                                // color: Colors.black54
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          if (!decrypt && !didAuthenticate) {
+                            buildShowDialogBox(context);
+                          } else if (!decrypt && didAuthenticate) {
+                            String masterPass = await getMasterPass();
+                            decryptPass(password.password, masterPass, true);
+                          } else if (decrypt) {
+                            setState(() {
+                              decrypt = !decrypt;
+                            });
+                          }
+                        },
+                        icon: decrypt ? Icon(Icons.lock_open) : Icon(Icons.lock),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            )
+
+          ),
+          Padding(
+            padding: const EdgeInsets.all(46.0),
+            child: Center(
+              child: SizedBox(
+                width: size.width * 0.7,
+                height: 60,
+                child: MaterialButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32)),
+                  color: primaryColor,
+                  child: Text(
+                    "复制",
+                    style: TextStyle(color: Colors.white, fontFamily: "Title"),
+                  ),
+                  onPressed: () async {
+                    String masterPass = await getMasterPass();
+                    Clipboard.setData(new ClipboardData(
+                        text: decryptPass(password.password, masterPass, false)));
+                    scaffoldKey.currentState.showSnackBar(
+                      SnackBar(
+                        content: Text("密码已复制到剪切板"),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
                 ),
-              ],
+              ),
             ),
           ),
         ],
       ),
+
     );
   }
 
@@ -228,7 +264,7 @@ class ViewPasswordState extends State<ViewPassword> {
               onPressed: () {
                 Navigator.of(context).pop();
                 decryptPass(
-                    password.password, masterPassController.text.trim());
+                    password.password, masterPassController.text.trim(), true);
                 masterPassController.clear();
                 if (!decrypt) {
                   final snackBar = SnackBar(
@@ -248,7 +284,7 @@ class ViewPasswordState extends State<ViewPassword> {
     );
   }
 
-  decryptPass(String encryptedPass, String masterPass) {
+  String decryptPass(String encryptedPass, String masterPass, bool changeState) {
     String keyString = masterPass;
     if (keyString.length < 32) {
       int count = 32 - keyString.length;
@@ -263,10 +299,14 @@ class ViewPasswordState extends State<ViewPassword> {
     try {
       final encrypter = encrypt.Encrypter(encrypt.AES(key));
       final d = encrypter.decrypt64(encryptedPass, iv: iv);
-      setState(() {
-        decrypted = d;
-        decrypt = true;
-      });
+
+      if(changeState) {
+        setState(() {
+          decrypted = d;
+          decrypt = true;
+        });
+      }
+      return d;
     } catch (exception) {
       setState(() {
         decrypted = "主密码错误";

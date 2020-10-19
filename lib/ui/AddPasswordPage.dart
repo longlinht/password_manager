@@ -199,6 +199,7 @@ class AddPasswordState extends State<AddPassword> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                       controller: appNameController,
+                      textInputAction: TextInputAction.next,
                     ),
                   ),
                   Padding(
@@ -212,6 +213,7 @@ class AddPasswordState extends State<AddPassword> {
                           ),
                       ),
                       controller: userNameController,
+                      textInputAction: TextInputAction.next,
                     ),
                   ),
                   Padding(
