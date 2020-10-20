@@ -200,6 +200,7 @@ class AddPasswordState extends State<AddPassword> {
                       ),
                       controller: appNameController,
                       textInputAction: TextInputAction.next,
+                      autofocus: true
                     ),
                   ),
                   Padding(
@@ -214,6 +215,7 @@ class AddPasswordState extends State<AddPassword> {
                       ),
                       controller: userNameController,
                       textInputAction: TextInputAction.next,
+                      autofocus: true
                     ),
                   ),
                   Padding(
@@ -237,6 +239,7 @@ class AddPasswordState extends State<AddPassword> {
                         ),
                       ),
                       controller: passwordController,
+                      autofocus: true
                     ),
                   ),
                   Padding(
