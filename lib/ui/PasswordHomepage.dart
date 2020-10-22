@@ -186,6 +186,9 @@ class _PasswordHomepageState extends State<PasswordHomepage> {
                       child: Text(
                         "还没有密码。\n点击 \"+\" 按钮添加",
                         textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18
+                        ),
                         // style: TextStyle(color: Colors.black54),
                       ),
                     );
